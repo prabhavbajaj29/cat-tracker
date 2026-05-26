@@ -5,90 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAT Prep Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f5f4f0;
-      --surface: #ffffff;
-      --surface2: #f0efe9;
-      --border: rgba(0,0,0,0.1);
-      --border-strong: rgba(0,0,0,0.18);
-      --text: #1a1a18;
-      --text-2: #5a5a55;
-      --text-3: #9a9a94;
-      --blue: #185FA5;
-      --blue-light: #E6F1FB;
-      --blue-mid: #B5D4F4;
-      --green: #3B6D11;
-      --green-light: #EAF3DE;
-      --amber: #BA7517;
-      --amber-light: #FAEEDA;
-      --purple: #534AB7;
-      --purple-light: #EEEDFE;
-      --red: #A32D2D;
-      --red-light: #FCEBEB;
-      --radius: 10px;
-      --radius-lg: 14px;
+      --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0efe9;
+      --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.18);
+      --text: #1a1a18; --text-2: #5a5a55; --text-3: #9a9a94;
+      --blue: #185FA5; --blue-light: #E6F1FB; --blue-mid: #B5D4F4;
+      --green: #3B6D11; --green-light: #EAF3DE;
+      --amber: #BA7517; --amber-light: #FAEEDA;
+      --purple: #534AB7; --purple-light: #EEEDFE;
+      --red: #A32D2D; --red-light: #FCEBEB;
+      --radius: 10px; --radius-lg: 14px;
     }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    /* LOGIN */
+    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; width: 100%; max-width: 360px; text-align: center; }
+    .login-card .logo { font-size: 32px; margin-bottom: 0.5rem; }
+    .login-card h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .login-card p { font-size: 13px; color: var(--text-3); margin-bottom: 1.75rem; }
+    .pin-inputs { display: flex; gap: 10px; justify-content: center; margin-bottom: 1.25rem; }
+    .pin-input { width: 52px; height: 56px; text-align: center; font-size: 22px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: 1.5px solid var(--border-strong); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+    .pin-input:focus { border-color: var(--blue); }
+    .btn-primary { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 24px; border-radius: var(--radius); background: var(--blue); color: #fff; border: none; cursor: pointer; width: 100%; transition: background 0.15s; }
+    .btn-primary:hover { background: #0C447C; }
+    .btn-primary:disabled { background: var(--text-3); cursor: not-allowed; }
+    .login-error { font-size: 12px; color: var(--red); margin-top: 10px; min-height: 16px; }
 
-    /* Layout */
-    .app { display: flex; min-height: 100vh; }
-
-    .sidebar {
-      width: 240px;
-      background: var(--surface);
-      border-right: 0.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      padding: 1.5rem 0;
-      z-index: 10;
-    }
-
-    .sidebar-logo {
-      padding: 0 1.25rem 1.5rem;
-      border-bottom: 0.5px solid var(--border);
-      margin-bottom: 1rem;
-    }
+    /* APP */
+    .app { display: none; }
+    .app.visible { display: flex; }
+    .sidebar { width: 240px; background: var(--surface); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; padding: 1.5rem 0; z-index: 10; }
+    .sidebar-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
     .sidebar-logo h1 { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
     .sidebar-logo p { font-size: 11px; color: var(--text-3); margin-top: 3px; }
-
     .sidebar-section { padding: 0 0.75rem; margin-bottom: 1.5rem; }
     .sidebar-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 0.5rem; margin-bottom: 4px; }
-
-    .nav-item {
-      display: flex; align-items: center; gap: 9px;
-      padding: 7px 10px; border-radius: 8px;
-      font-size: 13px; color: var(--text-2);
-      cursor: pointer; transition: all 0.15s;
-      border: none; background: none; width: 100%; text-align: left;
-    }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
     .nav-item:hover { background: var(--surface2); color: var(--text); }
     .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 500; }
     .nav-item i { font-size: 16px; }
     .nav-badge { margin-left: auto; font-size: 10px; background: var(--surface2); color: var(--text-3); padding: 1px 6px; border-radius: 99px; }
     .nav-item.active .nav-badge { background: var(--blue-mid); color: var(--blue); }
-
-    .sidebar-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+    .sidebar-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
     .streak-card { background: var(--blue-light); border-radius: var(--radius); padding: 0.75rem 1rem; }
     .streak-card p { font-size: 11px; color: var(--blue); font-weight: 500; }
     .streak-card .streak-num { font-size: 22px; font-weight: 600; color: var(--blue); }
     .streak-card .streak-sub { font-size: 11px; color: #378ADD; }
+    .logout-btn { font-size: 12px; color: var(--text-3); background: none; border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .logout-btn:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
 
-    /* Main */
     .main { margin-left: 240px; flex: 1; padding: 2rem; max-width: calc(100vw - 240px); }
-
     .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; gap: 1rem; }
     .topbar-left h2 { font-size: 20px; font-weight: 600; }
     .topbar-left p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
@@ -97,7 +69,6 @@
     .date-nav button:hover { background: var(--surface2); }
     .date-display { font-size: 13px; font-weight: 500; color: var(--text); background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 6px 14px; min-width: 180px; text-align: center; }
 
-    /* Stats */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
     .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
     .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; margin-bottom: 6px; }
@@ -106,104 +77,56 @@
     .progress-wrap { height: 4px; background: var(--surface2); border-radius: 99px; margin-top: 8px; }
     .progress-fill { height: 4px; background: var(--blue); border-radius: 99px; transition: width 0.4s ease; }
 
-    /* Add Goal */
     .add-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.25rem; }
     .add-card h3 { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
     .form-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; margin-bottom: 8px; align-items: center; }
-    .form-row2 { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-
-    input[type="text"], select {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      padding: 8px 12px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
-    }
+    .form-row2 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    input[type="text"], select { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; border: 0.5px solid var(--border-strong); border-radius: 8px; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; width: 100%; }
     input[type="text"]:focus, select:focus { border-color: var(--blue); }
     select { cursor: pointer; }
+    .btn-add { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: var(--blue); color: #fff; border: none; cursor: pointer; white-space: nowrap; transition: background 0.15s; display: flex; align-items: center; gap: 5px; }
+    .btn-add:hover { background: #0C447C; }
+    .btn-add:disabled { background: var(--text-3); cursor: not-allowed; }
 
-    .btn-primary {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 8px;
-      background: var(--blue);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .btn-primary:hover { background: #0C447C; }
-
-    /* Filter tabs */
     .filter-row { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
     .filter-tab { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 99px; border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text-2); cursor: pointer; transition: all 0.15s; }
     .filter-tab:hover { background: var(--surface2); }
     .filter-tab.active { background: var(--blue-light); color: var(--blue); border-color: var(--blue-mid); }
-    .filter-right { margin-left: auto; display: flex; gap: 6px; }
+    .filter-right { margin-left: auto; }
     .sort-btn { font-size: 12px; padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border); background: var(--surface); color: var(--text-3); cursor: pointer; display: flex; align-items: center; gap: 4px; }
-    .sort-btn:hover { background: var(--surface2); color: var(--text-2); }
+    .sort-btn:hover { background: var(--red-light); color: var(--red); }
 
-    /* Goals */
     .goals-container { display: flex; flex-direction: column; gap: 8px; }
     .section-divider { display: flex; align-items: center; gap: 10px; margin: 0.75rem 0 0.25rem; }
     .section-divider span { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; }
     .section-divider hr { flex: 1; border: none; border-top: 0.5px solid var(--border); }
 
-    .goal-card {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      transition: border-color 0.2s, background 0.2s;
-    }
+    .goal-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: border-color 0.2s, background 0.2s; }
     .goal-card.done { background: var(--green-light); border-color: #C0DD97; }
     .goal-card.done .goal-title { text-decoration: line-through; color: var(--text-3); }
-
     .goal-row { display: flex; align-items: center; gap: 12px; padding: 0.875rem 1rem; }
-    .check-btn {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 1.5px solid var(--border-strong);
-      background: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.2s; color: transparent;
-    }
+    .check-btn { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border-strong); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; color: transparent; }
     .check-btn:hover { border-color: var(--green); background: var(--green-light); }
     .check-btn.checked { background: var(--green); border-color: var(--green); color: #fff; }
     .check-btn i { font-size: 13px; }
-
     .goal-body { flex: 1; min-width: 0; }
     .goal-title { font-size: 14px; font-weight: 500; color: var(--text); }
     .goal-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-
     .pill { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 99px; }
     .pill-QA { background: var(--blue-light); color: var(--blue); }
     .pill-LRDI { background: var(--amber-light); color: var(--amber); }
     .pill-VARC { background: var(--purple-light); color: var(--purple); }
     .pill-General { background: var(--surface2); color: var(--text-2); }
-
     .time-badge { font-size: 11px; color: var(--text-3); display: flex; align-items: center; gap: 3px; }
     .goal-note-text { font-size: 11px; color: var(--text-3); font-style: italic; margin-top: 2px; }
-
     .goal-actions { display: flex; gap: 2px; }
     .icon-btn { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 6px; color: var(--text-3); font-size: 16px; display: flex; align-items: center; transition: all 0.15s; }
-    .icon-btn:hover { background: var(--surface2); color: var(--text-2); }
-    .icon-btn.danger:hover { background: var(--red-light); color: var(--red); }
+    .icon-btn:hover { background: var(--red-light); color: var(--red); }
 
-    /* Empty */
     .empty { text-align: center; padding: 3rem 1rem; color: var(--text-3); }
     .empty i { font-size: 36px; margin-bottom: 0.75rem; display: block; }
     .empty p { font-size: 14px; }
-    .empty small { font-size: 12px; color: var(--text-3); }
 
-    /* History page */
     .page { display: none; }
     .page.active { display: block; }
 
@@ -220,11 +143,14 @@
     .history-goal-item p { font-size: 13px; color: var(--text); flex: 1; }
     .history-goal-item p.done-text { text-decoration: line-through; color: var(--text-3); }
 
-    /* Toast */
-    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--text); color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(245,244,240,0.85); display: flex; align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; }
+    .loading-overlay p { font-size: 14px; color: var(--text-2); }
+    .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--text); color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999; }
     .toast.show { opacity: 1; }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; max-width: 100vw; padding: 1rem; }
@@ -235,14 +161,30 @@
 </head>
 <body>
 
-<div class="app">
-  <!-- Sidebar -->
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="logo">📚</div>
+    <h1>CAT Prep Tracker</h1>
+    <p>Enter your PIN to access your goals</p>
+    <div class="pin-inputs">
+      <input class="pin-input" type="password" maxlength="1" inputmode="numeric" id="p1" />
+      <input class="pin-input" type="password" maxlength="1" inputmode="numeric" id="p2" />
+      <input class="pin-input" type="password" maxlength="1" inputmode="numeric" id="p3" />
+      <input class="pin-input" type="password" maxlength="1" inputmode="numeric" id="p4" />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Unlock</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="appWrap">
   <aside class="sidebar">
     <div class="sidebar-logo">
       <h1><i class="ti ti-book-2" style="color:#185FA5"></i> CAT Tracker</h1>
       <p>Daily prep goal manager</p>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-label">Menu</div>
       <button class="nav-item active" onclick="showPage('today')">
@@ -253,7 +195,6 @@
         <i class="ti ti-history"></i> History
       </button>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-label">Sections</div>
       <button class="nav-item" onclick="showPage('today'); setFilter('QA')">
@@ -266,19 +207,17 @@
         <i class="ti ti-book"></i> VARC
       </button>
     </div>
-
     <div class="sidebar-bottom">
       <div class="streak-card">
         <p>🔥 Study streak</p>
         <div class="streak-num" id="streakNum">0</div>
         <div class="streak-sub">days in a row</div>
       </div>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:14px"></i> Log out</button>
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
-
     <!-- TODAY PAGE -->
     <div class="page active" id="page-today">
       <div class="topbar">
@@ -287,9 +226,9 @@
           <p id="pageSubtitle"></p>
         </div>
         <div class="date-nav">
-          <button onclick="changeDay(-1)" title="Previous day"><i class="ti ti-chevron-left"></i></button>
+          <button onclick="changeDay(-1)"><i class="ti ti-chevron-left"></i></button>
           <div class="date-display" id="dateDisplay"></div>
-          <button onclick="changeDay(1)" title="Next day"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="changeDay(1)"><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
 
@@ -319,7 +258,7 @@
       <div class="add-card">
         <h3>Add new goal</h3>
         <div class="form-row">
-          <input type="text" id="goalInput" placeholder="e.g. Solve 20 TSD problems, Read RC passage set…" />
+          <input type="text" id="goalInput" placeholder="e.g. Solve 20 TSD problems, Read RC passage…" />
           <select id="sectionSelect">
             <option value="QA">QA</option>
             <option value="LRDI">LRDI</option>
@@ -336,7 +275,7 @@
             <option value="2 hr">2 hr</option>
             <option value="3 hr">3 hr</option>
           </select>
-          <button class="btn-primary" onclick="addGoal()"><i class="ti ti-plus"></i> Add</button>
+          <button class="btn-add" id="addBtn" onclick="addGoal()"><i class="ti ti-plus"></i> Add</button>
         </div>
         <div class="form-row2">
           <input type="text" id="noteInput" placeholder="Note (optional) — e.g. focus on remainders, attempt from AIMCAT 2024" />
@@ -351,7 +290,7 @@
         <div class="filter-tab" onclick="setFilter('General')">General</div>
         <div class="filter-tab" onclick="setFilter('Done')">✓ Done</div>
         <div class="filter-right">
-          <button class="sort-btn" onclick="clearDayGoals()"><i class="ti ti-trash" style="font-size:13px"></i> Clear day</button>
+          <button class="sort-btn" onclick="clearDay()"><i class="ti ti-trash" style="font-size:13px"></i> Clear day</button>
         </div>
       </div>
 
@@ -368,21 +307,24 @@
       </div>
       <div id="historyList"></div>
     </div>
-
   </main>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── State ──────────────────────────────────────────────
+  const SUPABASE_URL = 'https://crjwkfuzhbqhpvcgojow.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyandrZnV6aGJxaHB2Y2dvam93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Mjg3ODMsImV4cCI6MjA5NTMwNDc4M30.uEx_XD8W86sqZre86vAAkqjCku_fQtxwHqRJuKKrZPU';
+  const CORRECT_PIN = '2905';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
   let currentDate = todayKey();
   let filter = 'All';
-  let idCounter = 1;
+  let userPin = '';
 
   function todayKey() {
-    const d = new Date();
-    return d.toISOString().split('T')[0];
+    return new Date().toISOString().split('T')[0];
   }
 
   function dateFromKey(key) {
@@ -393,67 +335,83 @@
   function formatKey(key) {
     const d = dateFromKey(key);
     const today = todayKey();
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    const yKey = yesterday.toISOString().split('T')[0];
+    const yest = new Date(); yest.setDate(yest.getDate() - 1);
+    const yKey = yest.toISOString().split('T')[0];
     if (key === today) return 'Today — ' + d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
     if (key === yKey) return 'Yesterday — ' + d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
     return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
 
-  // ── Storage ────────────────────────────────────────────
-  function loadAll() {
-    try { return JSON.parse(localStorage.getItem('cat_goals') || '{}'); } catch { return {}; }
+  function showLoading(msg) {
+    let el = document.getElementById('loadingOverlay');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'loading-overlay';
+      el.id = 'loadingOverlay';
+      el.innerHTML = `<div class="spinner"></div><p id="loadingMsg">${msg}</p>`;
+      document.body.appendChild(el);
+    } else {
+      document.getElementById('loadingMsg').textContent = msg;
+      el.style.display = 'flex';
+    }
   }
 
-  function saveAll(data) {
-    localStorage.setItem('cat_goals', JSON.stringify(data));
+  function hideLoading() {
+    const el = document.getElementById('loadingOverlay');
+    if (el) el.style.display = 'none';
   }
 
-  function getDay(key) {
-    const all = loadAll();
-    return all[key] || [];
-  }
-
-  function saveDay(key, goals) {
-    const all = loadAll();
-    all[key] = goals;
-    saveAll(all);
-  }
-
-  function nextId() {
-    const all = loadAll();
-    let max = 0;
-    Object.values(all).forEach(arr => arr.forEach(g => { if (g.id > max) max = g.id; }));
-    return max + 1;
-  }
-
-  // ── UI helpers ─────────────────────────────────────────
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
+    setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  function showPage(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (name === 'today') {
-      document.querySelectorAll('.nav-item')[0].classList.add('active');
-      render();
-    } else if (name === 'history') {
-      document.querySelectorAll('.nav-item')[1].classList.add('active');
-      renderHistory();
+  // PIN login
+  const pinInputs = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
+  pinInputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      if (inp.value && i < 3) pinInputs[i + 1].focus();
+      if (i === 3 && inp.value) doLogin();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) pinInputs[i - 1].focus();
+    });
+  });
+
+  function doLogin() {
+    const pin = pinInputs.map(p => p.value).join('');
+    if (pin.length < 4) { document.getElementById('loginError').textContent = 'Enter all 4 digits.'; return; }
+    if (pin !== CORRECT_PIN) {
+      document.getElementById('loginError').textContent = 'Incorrect PIN. Try again.';
+      pinInputs.forEach(p => p.value = '');
+      pinInputs[0].focus();
+      return;
     }
+    userPin = pin;
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('appWrap').classList.add('visible');
+    render();
+    updateStreak();
   }
 
-  // ── Date nav ───────────────────────────────────────────
+  function doLogout() {
+    userPin = '';
+    pinInputs.forEach(p => p.value = '');
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('appWrap').classList.remove('visible');
+    pinInputs[0].focus();
+  }
+
+  document.getElementById('goalInput').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+
+  // Date nav
   function changeDay(delta) {
     const d = dateFromKey(currentDate);
     d.setDate(d.getDate() + delta);
     const newKey = d.toISOString().split('T')[0];
-    // Don't allow future dates beyond today
     if (newKey > todayKey()) return;
     currentDate = newKey;
     filter = 'All';
@@ -461,52 +419,51 @@
     render();
   }
 
-  // ── Add goal ───────────────────────────────────────────
-  function addGoal() {
+  // Add goal
+  async function addGoal() {
     const title = document.getElementById('goalInput').value.trim();
     if (!title) { showToast('Please enter a goal!'); return; }
     const section = document.getElementById('sectionSelect').value;
     const duration = document.getElementById('durationSelect').value;
     const note = document.getElementById('noteInput').value.trim();
-    const goals = getDay(currentDate);
-    goals.unshift({ id: nextId(), title, section, duration, note, done: false, createdAt: Date.now() });
-    saveDay(currentDate, goals);
+    document.getElementById('addBtn').disabled = true;
+    const { error } = await db.from('goals').insert({ user_pin: userPin, date: currentDate, title, section, duration: duration || null, note: note || null, done: false });
+    document.getElementById('addBtn').disabled = false;
+    if (error) { showToast('Error saving goal. Try again.'); console.error(error); return; }
     document.getElementById('goalInput').value = '';
     document.getElementById('noteInput').value = '';
     document.getElementById('durationSelect').value = '';
-    updateStreak();
-    render();
     showToast('Goal added!');
+    await render();
+    await updateStreak();
   }
 
-  document.getElementById('goalInput').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
-
-  // ── Toggle done ────────────────────────────────────────
-  function toggleDone(id) {
-    const goals = getDay(currentDate);
-    const g = goals.find(x => x.id === id);
-    if (g) g.done = !g.done;
-    saveDay(currentDate, goals);
-    updateStreak();
-    render();
+  // Toggle done
+  async function toggleDone(id, currentState) {
+    const { error } = await db.from('goals').update({ done: !currentState }).eq('id', id).eq('user_pin', userPin);
+    if (error) { showToast('Error updating. Try again.'); return; }
+    await render();
+    await updateStreak();
   }
 
-  function deleteGoal(id) {
-    let goals = getDay(currentDate);
-    goals = goals.filter(x => x.id !== id);
-    saveDay(currentDate, goals);
-    render();
+  // Delete goal
+  async function deleteGoal(id) {
+    const { error } = await db.from('goals').delete().eq('id', id).eq('user_pin', userPin);
+    if (error) { showToast('Error deleting. Try again.'); return; }
     showToast('Goal removed');
+    await render();
   }
 
-  function clearDayGoals() {
+  // Clear day
+  async function clearDay() {
     if (!confirm('Clear all goals for this day?')) return;
-    saveDay(currentDate, []);
-    render();
+    const { error } = await db.from('goals').delete().eq('user_pin', userPin).eq('date', currentDate);
+    if (error) { showToast('Error clearing. Try again.'); return; }
     showToast('Day cleared');
+    await render();
   }
 
-  // ── Filter ─────────────────────────────────────────────
+  // Filter
   function setFilter(f) {
     filter = f;
     document.querySelectorAll('.filter-tab').forEach(t => {
@@ -516,26 +473,36 @@
     render();
   }
 
-  // ── Streak ─────────────────────────────────────────────
-  function updateStreak() {
-    const all = loadAll();
-    const today = todayKey();
+  // Show page
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (name === 'today') { document.querySelectorAll('.nav-item')[0].classList.add('active'); render(); }
+    else if (name === 'history') { document.querySelectorAll('.nav-item')[1].classList.add('active'); renderHistory(); }
+  }
+
+  // Streak
+  async function updateStreak() {
+    const { data } = await db.from('goals').select('date').eq('user_pin', userPin).order('date', { ascending: false });
+    if (!data) return;
+    const days = [...new Set(data.map(g => g.date))].sort((a, b) => b.localeCompare(a));
     let streak = 0;
-    let d = new Date();
-    while (true) {
-      const key = d.toISOString().split('T')[0];
-      const goals = all[key] || [];
-      if (goals.length === 0 && key !== today) break;
-      if (goals.length > 0) streak++;
-      d.setDate(d.getDate() - 1);
-      if (streak > 365) break;
+    let check = todayKey();
+    for (const day of days) {
+      if (day === check) { streak++; const d = dateFromKey(check); d.setDate(d.getDate() - 1); check = d.toISOString().split('T')[0]; }
+      else if (day < check) break;
     }
     document.getElementById('streakNum').textContent = streak;
   }
 
-  // ── Render today ───────────────────────────────────────
-  function render() {
-    const goals = getDay(currentDate);
+  // Render today
+  async function render() {
+    showLoading('Loading goals…');
+    const { data: goals, error } = await db.from('goals').select('*').eq('user_pin', userPin).eq('date', currentDate).order('created_at', { ascending: false });
+    hideLoading();
+    if (error) { showToast('Error loading goals.'); return; }
+
     const total = goals.length;
     const done = goals.filter(g => g.done).length;
     const left = total - done;
@@ -551,7 +518,9 @@
 
     const isToday = currentDate === todayKey();
     document.getElementById('pageTitle').textContent = isToday ? "Today's Goals" : formatKey(currentDate).split(' — ')[0];
-    document.getElementById('pageSubtitle').textContent = isToday ? new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : formatKey(currentDate).split(' — ')[1] || '';
+    document.getElementById('pageSubtitle').textContent = isToday
+      ? new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      : (formatKey(currentDate).split(' — ')[1] || '');
 
     let visible = goals;
     if (filter === 'Done') visible = goals.filter(g => g.done);
@@ -559,10 +528,9 @@
 
     const list = document.getElementById('goalsList');
     if (visible.length === 0) {
-      list.innerHTML = `<div class="empty"><i class="ti ti-clipboard-list"></i><p>${filter === 'Done' ? 'No completed goals yet — keep going!' : 'No goals here. Add one above!'}</p><small>${isToday ? 'Plan your study session for today.' : ''}</small></div>`;
+      list.innerHTML = `<div class="empty"><i class="ti ti-clipboard-list"></i><p>${filter === 'Done' ? 'No completed goals yet — keep going!' : 'No goals here. Add one above!'}</p></div>`;
       return;
     }
-
     const pending = visible.filter(g => !g.done);
     const completed = visible.filter(g => g.done);
     let html = '';
@@ -577,35 +545,43 @@
   function renderGoal(g) {
     return `<div class="goal-card${g.done ? ' done' : ''}">
       <div class="goal-row">
-        <button class="check-btn${g.done ? ' checked' : ''}" onclick="toggleDone(${g.id})" title="${g.done ? 'Mark undone' : 'Mark done'}">
+        <button class="check-btn${g.done ? ' checked' : ''}" onclick="toggleDone('${g.id}', ${g.done})" title="${g.done ? 'Mark undone' : 'Mark done'}">
           <i class="ti ti-check"></i>
         </button>
         <div class="goal-body">
           <div class="goal-title">${esc(g.title)}</div>
           <div class="goal-meta">
             <span class="pill pill-${g.section}">${g.section}</span>
-            ${g.duration ? `<span class="time-badge"><i class="ti ti-clock" style="font-size:11px"></i>${g.duration}</span>` : ''}
+            ${g.duration ? `<span class="time-badge"><i class="ti ti-clock" style="font-size:11px"></i>${esc(g.duration)}</span>` : ''}
           </div>
           ${g.note ? `<div class="goal-note-text">${esc(g.note)}</div>` : ''}
         </div>
         <div class="goal-actions">
-          <button class="icon-btn danger" onclick="deleteGoal(${g.id})" title="Delete"><i class="ti ti-trash"></i></button>
+          <button class="icon-btn" onclick="deleteGoal('${g.id}')" title="Delete"><i class="ti ti-trash"></i></button>
         </div>
       </div>
     </div>`;
   }
 
-  // ── Render history ─────────────────────────────────────
-  function renderHistory() {
-    const all = loadAll();
-    const keys = Object.keys(all).sort((a, b) => b.localeCompare(a));
+  // Render history
+  async function renderHistory() {
+    showLoading('Loading history…');
+    const { data, error } = await db.from('goals').select('*').eq('user_pin', userPin).order('date', { ascending: false }).order('created_at', { ascending: false });
+    hideLoading();
+    if (error) { showToast('Error loading history.'); return; }
+
+    const byDay = {};
+    data.forEach(g => { if (!byDay[g.date]) byDay[g.date] = []; byDay[g.date].push(g); });
+    const keys = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
     const list = document.getElementById('historyList');
+
     if (keys.length === 0) {
       list.innerHTML = `<div class="empty"><i class="ti ti-history"></i><p>No history yet. Start adding goals today!</p></div>`;
       return;
     }
+
     list.innerHTML = keys.map((key, idx) => {
-      const goals = all[key];
+      const goals = byDay[key];
       const done = goals.filter(g => g.done).length;
       const pct = goals.length ? Math.round((done / goals.length) * 100) : 0;
       return `<div class="history-day">
@@ -613,34 +589,30 @@
           <h3>${formatKey(key)}</h3>
           <div class="day-stats">
             <span class="day-stat">${done}/${goals.length} done</span>
-            <span class="pill ${pct === 100 ? 'pill-QA' : 'pill-General'}" style="font-size:11px">${pct}%</span>
+            <span class="pill ${pct === 100 ? 'pill-QA' : 'pill-General'}" style="font-size:10px">${pct}%</span>
             <i class="ti ti-chevron-down" style="font-size:16px;color:var(--text-3)"></i>
           </div>
         </div>
         <div class="history-day-body" id="hd-${idx}">
-          ${goals.length === 0 ? '<p style="font-size:13px;color:var(--text-3)">No goals recorded.</p>' : goals.map(g => `
-            <div class="history-goal-item">
-              <div class="history-done-dot" style="background:${g.done ? '#639922' : '#D3D1C7'}"></div>
-              <p class="${g.done ? 'done-text' : ''}">${esc(g.title)}</p>
-              <span class="pill pill-${g.section}" style="font-size:10px">${g.section}</span>
-            </div>`).join('')}
+          ${goals.map(g => `<div class="history-goal-item">
+            <div class="history-done-dot" style="background:${g.done ? '#639922' : '#D3D1C7'}"></div>
+            <p class="${g.done ? 'done-text' : ''}">${esc(g.title)}</p>
+            <span class="pill pill-${g.section}" style="font-size:10px">${g.section}</span>
+          </div>`).join('')}
         </div>
       </div>`;
     }).join('');
   }
 
   function toggleHistoryDay(id) {
-    const el = document.getElementById(id);
-    el.classList.toggle('open');
+    document.getElementById(id).classList.toggle('open');
   }
 
   function esc(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  // ── Init ───────────────────────────────────────────────
-  updateStreak();
-  render();
+  pinInputs[0].focus();
 </script>
 </body>
 </html>
