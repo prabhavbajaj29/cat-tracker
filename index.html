@@ -65,8 +65,8 @@
     .topbar-left h2 { font-size: 20px; font-weight: 600; }
     .topbar-left p { font-size: 13px; color: var(--text-3); margin-top: 2px; }
     .date-nav { display: flex; align-items: center; gap: 8px; }
-    .date-nav button { background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-2); font-size: 16px; transition: all 0.15s; }
-    .date-nav button:hover { background: var(--surface2); }
+    .date-nav button { background: #ffffff !important; border: 1px solid #cccccc !important; border-radius: 8px !important; padding: 7px 13px !important; cursor: pointer !important; color: #1a1a18 !important; font-size: 18px !important; line-height: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important; min-width: 38px; }
+    .date-nav button:hover { background: #f0efe9 !important; }
     .date-display { font-size: 13px; font-weight: 500; color: #1a1a18 !important; background: #ffffff !important; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 8px; padding: 6px 14px; min-width: 180px; text-align: center; }
 
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
@@ -423,7 +423,7 @@
     const d = dateFromKey(currentDate);
     d.setDate(d.getDate() + delta);
     const newKey = keyFromDate(d);
-    if (newKey > todayKey()) return;
+
     currentDate = newKey;
     filter = 'All';
     document.querySelectorAll('.filter-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
