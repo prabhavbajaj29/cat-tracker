@@ -403,7 +403,7 @@
     userPin = pin;
     document.getElementById('loginWrap').style.display = 'none';
     document.getElementById('appWrap').classList.add('visible');
-    render();
+    await render();
     updateStreak();
   }
 
@@ -419,15 +419,18 @@
   document.getElementById('goalInput').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
 
   // Date nav
-  function changeDay(delta) {
+  async function changeDay(delta) {
     const d = dateFromKey(currentDate);
     d.setDate(d.getDate() + delta);
     const newKey = keyFromDate(d);
 
     currentDate = newKey;
     filter = 'All';
+    // Update date display immediately so it feels instant
+    const dispDate = dateFromKey(currentDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('dateDisplay').textContent = currentDate === todayKey() ? 'Today, ' + dispDate : dispDate;
     document.querySelectorAll('.filter-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-    render();
+    await render();
   }
 
   // Add goal
@@ -481,7 +484,7 @@
       const label = t.textContent.trim().replace(/^✓\s*/, '');
       t.classList.toggle('active', label === f || (f === 'Done' && t.textContent.includes('Done')));
     });
-    render();
+    await render();
   }
 
   // Show page
