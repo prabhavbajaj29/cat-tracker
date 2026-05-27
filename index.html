@@ -67,7 +67,7 @@
     .date-nav { display: flex; align-items: center; gap: 8px; }
     .date-nav button { background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-2); font-size: 16px; transition: all 0.15s; }
     .date-nav button:hover { background: var(--surface2); }
-    .date-display { font-size: 13px; font-weight: 500; color: var(--text); background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 6px 14px; min-width: 180px; text-align: center; }
+    .date-display { font-size: 13px; font-weight: 500; color: #1a1a18 !important; background: #ffffff !important; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 8px; padding: 6px 14px; min-width: 180px; text-align: center; }
 
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
     .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
@@ -324,7 +324,11 @@
   let userPin = '';
 
   function todayKey() {
-    return new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   function dateFromKey(key) {
@@ -332,11 +336,18 @@
     return new Date(y, m - 1, d);
   }
 
+  function keyFromDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   function formatKey(key) {
     const d = dateFromKey(key);
     const today = todayKey();
     const yest = new Date(); yest.setDate(yest.getDate() - 1);
-    const yKey = yest.toISOString().split('T')[0];
+    const yKey = keyFromDate(yest);
     if (key === today) return 'Today — ' + d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
     if (key === yKey) return 'Yesterday — ' + d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
     return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -411,7 +422,7 @@
   function changeDay(delta) {
     const d = dateFromKey(currentDate);
     d.setDate(d.getDate() + delta);
-    const newKey = d.toISOString().split('T')[0];
+    const newKey = keyFromDate(d);
     if (newKey > todayKey()) return;
     currentDate = newKey;
     filter = 'All';
@@ -490,7 +501,7 @@
     let streak = 0;
     let check = todayKey();
     for (const day of days) {
-      if (day === check) { streak++; const d = dateFromKey(check); d.setDate(d.getDate() - 1); check = d.toISOString().split('T')[0]; }
+      if (day === check) { streak++; const d = dateFromKey(check); d.setDate(d.getDate() - 1); check = keyFromDate(d); }
       else if (day < check) break;
     }
     document.getElementById('streakNum').textContent = streak;
@@ -513,7 +524,8 @@
     document.getElementById('statLeft').textContent = left;
     document.getElementById('statPct').textContent = pct + '%';
     document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('dateDisplay').textContent = formatKey(currentDate);
+    const displayDate = dateFromKey(currentDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('dateDisplay').textContent = currentDate === todayKey() ? 'Today, ' + displayDate : displayDate;
     document.getElementById('navTodayBadge').textContent = left;
 
     const isToday = currentDate === todayKey();
